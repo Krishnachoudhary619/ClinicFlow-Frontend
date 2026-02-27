@@ -6,11 +6,12 @@ import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { loginService } from "@/lib/services/authService";
 import { LoginRequest } from "@/types/auth";
+import { fetchProfile } from "@/lib/services/userService";
 
 export default function LoginPage() {
 	const { register, handleSubmit } = useForm<LoginRequest>();
 	const router = useRouter();
-	const { setTokens } = useAuthStore();
+	const { setTokens, setUser } = useAuthStore();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -23,6 +24,12 @@ export default function LoginPage() {
 
 		if (response.success && response.data) {
 			setTokens(response.data.accessToken, response.data.refreshToken);
+
+			const profileResponse = await fetchProfile();
+			if (profileResponse.success && profileResponse.data) {
+				setUser(profileResponse.data);
+			}
+
 			router.replace("/dashboard");
 		} else {
 			setError(response.message);
