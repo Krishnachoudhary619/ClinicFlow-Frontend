@@ -23,6 +23,7 @@ export default function QueuePanel() {
 
 	// Action Modal States
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+	const [isSkipModalOpen, setIsSkipModalOpen] = useState(false);
 	const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 	const [isNewDayModalOpen, setIsNewDayModalOpen] = useState(false);
 	const [isActionLoading, setIsActionLoading] = useState(false);
@@ -61,6 +62,21 @@ export default function QueuePanel() {
 			showSuccess(response.message);
 			await loadQueue();
 			setIsGenerateModalOpen(false);
+		} else {
+			showError(response.message);
+		}
+
+		setIsActionLoading(false);
+	};
+
+	const handleSkipConfirm = async () => {
+		setIsActionLoading(true);
+		const response = await skipToken();
+
+		if (response.success) {
+			showSuccess(response.message);
+			await loadQueue();
+			setIsSkipModalOpen(false);
 		} else {
 			showError(response.message);
 		}
@@ -160,7 +176,7 @@ export default function QueuePanel() {
 					</button>
 
 					<button
-						onClick={() => handleAction(skipToken)}
+						onClick={() => setIsSkipModalOpen(true)}
 						disabled={loading || !queue.currentServing}
 						className='px-6 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20'>
 						Skip
@@ -199,6 +215,17 @@ export default function QueuePanel() {
 			/>
 
 			{/* Destructive Action Modals */}
+			<ConfirmModal
+				open={isSkipModalOpen}
+				title='Skip Current Token?'
+				description='This will move the current patient to delayed status and call the next patient in the queue. Only use this if the patient is not present.'
+				confirmText='Skip Patient'
+				onConfirm={handleSkipConfirm}
+				onCancel={() => setIsSkipModalOpen(false)}
+				loading={isActionLoading}
+				variant='warning'
+			/>
+
 			<ConfirmModal
 				open={isResetModalOpen}
 				title='Reset Tokens?'
