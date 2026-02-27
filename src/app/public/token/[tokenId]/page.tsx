@@ -96,7 +96,7 @@ export default function PublicTokenPage() {
 						ClinicFlow Live
 					</span>
 					<h1 className='text-3xl font-black text-slate-900 dark:text-white mt-4'>
-						Your Status
+						Your Number
 					</h1>
 				</div>
 
@@ -115,7 +115,7 @@ export default function PublicTokenPage() {
 				<div className='grid grid-cols-2 gap-4 mb-10'>
 					<div className='p-4 bg-slate-50 rounded-2xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700/50'>
 						<p className='text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1'>
-							Currently On
+							Currently Number
 						</p>
 						<p className='text-2xl font-black text-slate-900 dark:text-white'>
 							#{data?.currentServing ?? "--"}
