@@ -14,6 +14,7 @@ import RoleGuard from "@/components/RoleGuard";
 import { UserRole } from "@/types/user";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { showSuccess, showError } from "@/lib/toast";
+import WaitingTokensTable from "./WaitingTokensTable";
 
 export default function QueuePanel() {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
@@ -173,6 +174,8 @@ export default function QueuePanel() {
 					</button>
 				</RoleGuard>
 			</div>
+
+			<WaitingTokensTable tokens={queue.waitingTokens} />
 
 			{/* Destructive Action Modals */}
 			<ConfirmModal

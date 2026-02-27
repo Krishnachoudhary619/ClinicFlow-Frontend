@@ -9,6 +9,8 @@ export interface Token {
     tokenNumber: number;
     cycleNumber: number;
     status: TokenStatus;
+    patientName?: string;
+    patientPhone?: string;
 }
 
 export interface QueueResponse {
