@@ -7,12 +7,17 @@ import { useAuthStore } from "@/store/authStore";
 export default function LoginLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const isInitialized = useAuthStore((state) => state.isInitialized);
 
 	useEffect(() => {
-		if (isAuthenticated) {
+		if (isInitialized && isAuthenticated) {
 			router.replace("/dashboard");
 		}
-	}, [isAuthenticated, router]);
+	}, [isInitialized, isAuthenticated, router]);
+
+	if (!isInitialized) {
+		return null;
+	}
 
 	return <>{children}</>;
 }

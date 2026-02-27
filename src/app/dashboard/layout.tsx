@@ -7,15 +7,16 @@ import { useAuthStore } from "@/store/authStore";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+	const isInitialized = useAuthStore((state) => state.isInitialized);
 
 	useEffect(() => {
-		if (!isAuthenticated) {
+		if (isInitialized && !isAuthenticated) {
 			router.replace("/login");
 		}
-	}, [isAuthenticated, router]);
+	}, [isInitialized, isAuthenticated, router]);
 
-	if (!isAuthenticated) {
-		return null; // prevent flash
+	if (!isInitialized || !isAuthenticated) {
+		return null; // prevent flash during initialization
 	}
 
 	return <div className='min-h-screen bg-gray-100'>{children}</div>;

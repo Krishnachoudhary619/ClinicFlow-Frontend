@@ -10,7 +10,7 @@ import { LoginRequest } from "@/types/auth";
 export default function LoginPage() {
 	const { register, handleSubmit } = useForm<LoginRequest>();
 	const router = useRouter();
-	const { setToken } = useAuthStore();
+	const { setTokens } = useAuthStore();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -22,7 +22,7 @@ export default function LoginPage() {
 		const response = await loginService(data);
 
 		if (response.success && response.data) {
-			setToken(response.data.accessToken);
+			setTokens(response.data.accessToken, response.data.refreshToken);
 			router.replace("/dashboard");
 		} else {
 			setError(response.message);

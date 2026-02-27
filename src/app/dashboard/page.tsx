@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { apiRequest } from "@/lib/api";
+import { ENDPOINTS } from "@/lib/endpoints";
 
 export default function DashboardPage() {
 	const [queue, setQueue] = useState<any>(null);
 
 	const fetchQueue = async () => {
-		const response = await api.get("/queue/current");
-		if (response.data.success) {
-			setQueue(response.data.data);
+		const response = await apiRequest<any>("get", ENDPOINTS.QUEUE.CURRENT);
+		if (response.success) {
+			setQueue(response.data);
 		}
 	};
 
