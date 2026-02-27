@@ -15,12 +15,14 @@ import { UserRole } from "@/types/user";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import { showSuccess, showError } from "@/lib/toast";
 import WaitingTokensTable from "./WaitingTokensTable";
+import GenerateTokenModal from "./GenerateTokenModal";
 
 export default function QueuePanel() {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	// Action Modal States
+	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
 	const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 	const [isNewDayModalOpen, setIsNewDayModalOpen] = useState(false);
 	const [isActionLoading, setIsActionLoading] = useState(false);
@@ -49,6 +51,21 @@ export default function QueuePanel() {
 			showError(response.message);
 		}
 		setLoading(false);
+	};
+
+	const handleGenerateConfirm = async (data: { patientName: string; patientPhone: string }) => {
+		setIsActionLoading(true);
+		const response = await generateToken(data);
+
+		if (response.success) {
+			showSuccess(response.message);
+			await loadQueue();
+			setIsGenerateModalOpen(false);
+		} else {
+			showError(response.message);
+		}
+
+		setIsActionLoading(false);
 	};
 
 	const handleResetConfirm = async () => {
@@ -126,11 +143,7 @@ export default function QueuePanel() {
 				{/* RECEPTIONIST / ADMIN - Generate Tokens */}
 				<RoleGuard allowed={[UserRole.ADMIN, UserRole.RECEPTIONIST]}>
 					<button
-						onClick={() =>
-							handleAction(() =>
-								generateToken({ patientName: "Walk-in", patientPhone: "NA" }),
-							)
-						}
+						onClick={() => setIsGenerateModalOpen(true)}
 						disabled={loading}
 						className='px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-blue-500/20'>
 						Generate Token
@@ -176,6 +189,14 @@ export default function QueuePanel() {
 			</div>
 
 			<WaitingTokensTable tokens={queue.waitingTokens} />
+
+			{/* Operational Modals */}
+			<GenerateTokenModal
+				open={isGenerateModalOpen}
+				loading={isActionLoading}
+				onClose={() => setIsGenerateModalOpen(false)}
+				onSubmit={handleGenerateConfirm}
+			/>
 
 			{/* Destructive Action Modals */}
 			<ConfirmModal
