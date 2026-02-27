@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import Navbar from "@/components/layout/Navbar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
@@ -19,5 +20,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 		return null; // prevent flash during initialization
 	}
 
-	return <div className='min-h-screen'>{children}</div>;
+	return (
+		<div className='min-h-screen bg-slate-50 dark:bg-slate-950'>
+			<Navbar />
+			<main>{children}</main>
+		</div>
+	);
 }
