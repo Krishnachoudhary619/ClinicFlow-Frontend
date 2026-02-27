@@ -18,4 +18,10 @@ export const ENDPOINTS = {
         TOKEN: (tokenId: number | string) =>
             `/public/token/${tokenId}`,
     },
+
+    ANALYTICS: {
+        TODAY: "/analytics/today",
+        HOURLY: "/analytics/hourly",
+        HISTORY: "/analytics/history",
+    },
 };
