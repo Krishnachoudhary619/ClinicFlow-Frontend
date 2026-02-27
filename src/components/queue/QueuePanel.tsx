@@ -16,10 +16,13 @@ import ConfirmModal from "@/components/ui/ConfirmModal";
 import { showSuccess, showError } from "@/lib/toast";
 import WaitingTokensTable from "./WaitingTokensTable";
 import GenerateTokenModal from "./GenerateTokenModal";
+import { useActionStore } from "@/store/actionStore";
 
 export default function QueuePanel() {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	const { activeAction, startAction, endAction } = useActionStore();
 
 	// Action Modal States
 	const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
@@ -33,6 +36,8 @@ export default function QueuePanel() {
 		const response = await fetchCurrentQueue();
 		if (response.success && response.data) {
 			setQueue(response.data);
+		} else if (!response.success) {
+			showError("Failed to refresh queue state.");
 		}
 		setLoading(false);
 	};
@@ -41,8 +46,11 @@ export default function QueuePanel() {
 		loadQueue();
 	}, []);
 
-	const handleAction = async (action: () => Promise<any>) => {
+	const handleAction = async (name: string, action: () => Promise<any>) => {
+		if (activeAction) return;
+		startAction(name);
 		setLoading(true);
+
 		const response = await action();
 
 		if (response.success) {
@@ -50,12 +58,19 @@ export default function QueuePanel() {
 			await loadQueue();
 		} else {
 			showError(response.message);
+			// Force reload on failure to ensure UI isn't stale
+			await loadQueue();
 		}
+
 		setLoading(false);
+		endAction();
 	};
 
 	const handleGenerateConfirm = async (data: { patientName: string; patientPhone: string }) => {
+		if (activeAction) return;
+		startAction("generate");
 		setIsActionLoading(true);
+
 		const response = await generateToken(data);
 
 		if (response.success) {
@@ -64,13 +79,18 @@ export default function QueuePanel() {
 			setIsGenerateModalOpen(false);
 		} else {
 			showError(response.message);
+			await loadQueue();
 		}
 
 		setIsActionLoading(false);
+		endAction();
 	};
 
 	const handleSkipConfirm = async () => {
+		if (activeAction) return;
+		startAction("skip");
 		setIsActionLoading(true);
+
 		const response = await skipToken();
 
 		if (response.success) {
@@ -79,13 +99,18 @@ export default function QueuePanel() {
 			setIsSkipModalOpen(false);
 		} else {
 			showError(response.message);
+			await loadQueue();
 		}
 
 		setIsActionLoading(false);
+		endAction();
 	};
 
 	const handleResetConfirm = async () => {
+		if (activeAction) return;
+		startAction("reset");
 		setIsActionLoading(true);
+
 		const response = await resetTokens();
 
 		if (response.success) {
@@ -93,14 +118,19 @@ export default function QueuePanel() {
 			await loadQueue();
 		} else {
 			showError(response.message);
+			await loadQueue();
 		}
 
 		setIsActionLoading(false);
 		setIsResetModalOpen(false);
+		endAction();
 	};
 
 	const handleNewDayConfirm = async () => {
+		if (activeAction) return;
+		startAction("new-day");
 		setIsActionLoading(true);
+
 		const response = await startNewDay();
 
 		if (response.success) {
@@ -108,10 +138,12 @@ export default function QueuePanel() {
 			await loadQueue();
 		} else {
 			showError(response.message);
+			await loadQueue();
 		}
 
 		setIsActionLoading(false);
 		setIsNewDayModalOpen(false);
+		endAction();
 	};
 
 	if (!queue && loading)
@@ -160,7 +192,7 @@ export default function QueuePanel() {
 				<RoleGuard allowed={[UserRole.ADMIN, UserRole.RECEPTIONIST]}>
 					<button
 						onClick={() => setIsGenerateModalOpen(true)}
-						disabled={loading}
+						disabled={loading || !!activeAction}
 						className='px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-blue-500/20'>
 						Generate Token
 					</button>
@@ -169,15 +201,15 @@ export default function QueuePanel() {
 				{/* STAFF - Flow Controls */}
 				<RoleGuard allowed={[UserRole.ADMIN, UserRole.RECEPTIONIST, UserRole.DOCTOR]}>
 					<button
-						onClick={() => handleAction(serveNext)}
-						disabled={loading || queue.waitingCount === 0}
+						onClick={() => handleAction("serve-next", serveNext)}
+						disabled={loading || !!activeAction || queue.waitingCount === 0}
 						className='px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-emerald-500/20'>
 						Serve Next
 					</button>
 
 					<button
 						onClick={() => setIsSkipModalOpen(true)}
-						disabled={loading || !queue.currentServing}
+						disabled={loading || !!activeAction || !queue.currentServing}
 						className='px-6 py-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-amber-500/20'>
 						Skip
 					</button>
@@ -187,7 +219,7 @@ export default function QueuePanel() {
 				<RoleGuard allowed={[UserRole.ADMIN, UserRole.RECEPTIONIST]}>
 					<button
 						onClick={() => setIsResetModalOpen(true)}
-						disabled={loading}
+						disabled={loading || !!activeAction}
 						className='px-6 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-rose-500/20'>
 						Reset Tokens
 					</button>
@@ -197,7 +229,7 @@ export default function QueuePanel() {
 				<RoleGuard allowed={[UserRole.ADMIN]}>
 					<button
 						onClick={() => setIsNewDayModalOpen(true)}
-						disabled={loading}
+						disabled={loading || !!activeAction}
 						className='px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-purple-500/20'>
 						Start New Day
 					</button>

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { UserProfile } from "@/types/user";
+import { useActionStore } from "./actionStore";
 
 type AuthState = {
     accessToken: string | null;
@@ -57,6 +58,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     logout: () => {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+
+        // Clear any active action locks on logout
+        useActionStore.getState().endAction();
 
         set({
             accessToken: null,
