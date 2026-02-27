@@ -12,10 +12,16 @@ import {
 import { QueueResponse } from "@/types/queue";
 import RoleGuard from "@/components/RoleGuard";
 import { UserRole } from "@/types/user";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 export default function QueuePanel() {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
 	const [loading, setLoading] = useState(false);
+
+	// Action Modal States
+	const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+	const [isNewDayModalOpen, setIsNewDayModalOpen] = useState(false);
+	const [isActionLoading, setIsActionLoading] = useState(false);
 
 	const loadQueue = async () => {
 		setLoading(true);
@@ -35,6 +41,22 @@ export default function QueuePanel() {
 		await action();
 		await loadQueue();
 		setLoading(false);
+	};
+
+	const handleResetConfirm = async () => {
+		setIsActionLoading(true);
+		await resetTokens();
+		await loadQueue();
+		setIsActionLoading(false);
+		setIsResetModalOpen(false);
+	};
+
+	const handleNewDayConfirm = async () => {
+		setIsActionLoading(true);
+		await startNewDay();
+		await loadQueue();
+		setIsActionLoading(false);
+		setIsNewDayModalOpen(false);
 	};
 
 	if (!queue && loading)
@@ -113,7 +135,7 @@ export default function QueuePanel() {
 				{/* RECEPTIONIST / ADMIN - Reset Utilities */}
 				<RoleGuard allowed={[UserRole.ADMIN, UserRole.RECEPTIONIST]}>
 					<button
-						onClick={() => handleAction(resetTokens)}
+						onClick={() => setIsResetModalOpen(true)}
 						disabled={loading}
 						className='px-6 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-rose-500/20'>
 						Reset Tokens
@@ -123,13 +145,36 @@ export default function QueuePanel() {
 				{/* ADMIN ONLY - Critical Infrastructure */}
 				<RoleGuard allowed={[UserRole.ADMIN]}>
 					<button
-						onClick={() => handleAction(startNewDay)}
+						onClick={() => setIsNewDayModalOpen(true)}
 						disabled={loading}
 						className='px-6 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 active:scale-[0.98] disabled:opacity-50 transition-all shadow-lg shadow-purple-500/20'>
 						Start New Day
 					</button>
 				</RoleGuard>
 			</div>
+
+			{/* Destructive Action Modals */}
+			<ConfirmModal
+				open={isResetModalOpen}
+				title='Reset Tokens?'
+				description='This will start a new token cycle for the current day. Previous tokens will not be affected but numbering will restart.'
+				confirmText='Reset Cycle'
+				onConfirm={handleResetConfirm}
+				onCancel={() => setIsResetModalOpen(false)}
+				loading={isActionLoading}
+				variant='danger'
+			/>
+
+			<ConfirmModal
+				open={isNewDayModalOpen}
+				title='Start New Clinic Day?'
+				description='This is a critical action. It will close all current records and start a fresh day. All token numbering will restart from #1.'
+				confirmText='Start New Day'
+				onConfirm={handleNewDayConfirm}
+				onCancel={() => setIsNewDayModalOpen(false)}
+				loading={isActionLoading}
+				variant='primary'
+			/>
 		</div>
 	);
 }
