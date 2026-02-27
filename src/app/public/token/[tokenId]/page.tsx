@@ -50,7 +50,7 @@ export default function PublicTokenPage() {
 			<div className='flex flex-col items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950'>
 				<div className='w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4'></div>
 				<p className='text-slate-600 dark:text-slate-400 font-medium'>
-					Fetching live status...
+					Connecting to live queue...
 				</p>
 			</div>
 		);
@@ -59,7 +59,7 @@ export default function PublicTokenPage() {
 	if (error) {
 		return (
 			<div className='flex items-center justify-center min-h-screen p-6 bg-slate-50 dark:bg-slate-950'>
-				<div className='bg-white p-8 rounded-3xl shadow-xl border border-red-100 max-w-md w-full text-center dark:bg-slate-900 dark:border-red-900/20'>
+				<div className='bg-white p-8 rounded-[3rem] shadow-xl border border-red-100 max-w-md w-full text-center dark:bg-slate-900 dark:border-red-900/20'>
 					<div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 dark:bg-red-900/20'>
 						<svg
 							className='w-8 h-8 text-red-600'
@@ -75,89 +75,192 @@ export default function PublicTokenPage() {
 						</svg>
 					</div>
 					<h1 className='text-2xl font-bold text-slate-900 dark:text-white mb-2'>
-						Token Not Found
+						Invalid Token
 					</h1>
 					<p className='text-slate-600 dark:text-slate-400 mb-8'>{error}</p>
 					<button
 						onClick={() => window.location.reload()}
-						className='w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all dark:bg-white dark:text-slate-900'>
-						Try Again
+						className='w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all dark:bg-white dark:text-slate-900'>
+						Check Status Again
 					</button>
 				</div>
 			</div>
 		);
 	}
 
+	const isCalled = data?.status === "CALLED";
+	const isServed = data?.status === "SERVED";
+	const isDelayed = data?.status === "DELAYED";
+
 	return (
-		<div className='flex items-center justify-center min-h-screen bg-slate-50 p-6 dark:bg-slate-950'>
-			<div className='bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100 dark:bg-slate-900 dark:border-slate-800'>
-				<div className='mb-8'>
-					<span className='px-4 py-1.5 bg-blue-100 text-blue-700 text-xs font-black uppercase tracking-[0.2em] rounded-full dark:bg-blue-900/30 dark:text-blue-400'>
-						ClinicFlow Live
-					</span>
-					<h1 className='text-3xl font-black text-slate-900 dark:text-white mt-4'>
-						Your Number
+		<div className='flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4 pb-24 md:pb-4 dark:bg-slate-950 transition-colors duration-500'>
+			<div className='bg-white p-6 md:p-12 rounded-[3.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100 dark:bg-slate-900 dark:border-slate-800 transition-all duration-500'>
+				{/* Top Identity Panel */}
+				<div className='mb-10'>
+					<div className='inline-flex items-center gap-2 px-4 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full dark:bg-slate-800 dark:text-slate-400'>
+						<div className='w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse'></div>
+						Official Clinic Queue
+					</div>
+					<h1 className='text-2xl font-bold text-slate-400 dark:text-slate-600 mt-6 capitalize'>
+						Patient Token
 					</h1>
 				</div>
 
-				<div className='relative mb-10'>
-					<div className='text-8xl font-black text-blue-600 tabular-nums'>
-						#{data?.tokenNumber}
-					</div>
-					<div className='absolute -top-1 -right-1'>
-						<div className='relative flex h-3 w-3'>
-							<span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75'></span>
-							<span className='relative inline-flex rounded-full h-3 w-3 bg-blue-500'></span>
+				{/* Main Token Focus */}
+				<div className='relative mb-12 flex justify-center'>
+					<div
+						className={`relative transition-all duration-700 ${isCalled ? "scale-110" : "scale-100"}`}>
+						{isCalled && (
+							<div className='absolute inset-0 bg-amber-400 blur-3xl opacity-30 animate-pulse'></div>
+						)}
+						<div
+							className={`text-9xl md:text-[10rem] font-black leading-none tabular-nums tracking-tighter transition-colors duration-500 ${
+								isCalled
+									? "text-amber-500 drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+									: isServed
+										? "text-emerald-500"
+										: isDelayed
+											? "text-rose-500 underline decoration-4"
+											: "text-blue-600"
+							}`}>
+							<span className='text-4xl align-top mr-1 opacity-40'>#</span>
+							{data?.tokenNumber}
 						</div>
 					</div>
 				</div>
 
-				<div className='grid grid-cols-2 gap-4 mb-10'>
-					<div className='p-4 bg-slate-50 rounded-2xl border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700/50'>
-						<p className='text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1'>
-							Currently Number
-						</p>
-						<p className='text-2xl font-black text-slate-900 dark:text-white'>
-							#{data?.currentServing ?? "--"}
-						</p>
-					</div>
-					<div className='p-4 bg-blue-50 rounded-2xl border border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20'>
-						<p className='text-[10px] uppercase tracking-wider font-bold text-blue-400 mb-1'>
-							Ahead of You
-						</p>
-						<p className='text-2xl font-black text-blue-900 dark:text-blue-200'>
-							{data?.patientsAhead}
-						</p>
-					</div>
+				{/* Psychological Progress Messaging */}
+				<div className='mb-10 px-4'>
+					{isCalled ? (
+						<div className='animate-bounce bg-amber-50 text-amber-700 py-3 px-6 rounded-2xl font-black text-sm uppercase tracking-wider dark:bg-amber-900/20 dark:text-amber-400'>
+							It is your turn! Please head to counter.
+						</div>
+					) : isServed ? (
+						<div className='bg-emerald-50 text-emerald-700 py-3 px-6 rounded-2xl font-bold text-sm dark:bg-emerald-900/20 dark:text-emerald-400'>
+							Visit completed. Stay healthy!
+						</div>
+					) : isDelayed ? (
+						<div className='bg-rose-50 text-rose-700 py-3 px-6 rounded-2xl font-bold text-sm dark:bg-rose-900/20 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30'>
+							Token skipped. Please see reception.
+						</div>
+					) : (
+						<div className='text-slate-500 dark:text-slate-400 font-bold'>
+							{data?.patientsAhead === 0 ? (
+								<p className='text-blue-600 dark:text-blue-400 flex items-center justify-center gap-2'>
+									<span className='w-2 h-2 bg-blue-600 rounded-full animate-ping'></span>
+									You are next in line! Stay ready.
+								</p>
+							) : (
+								<p>
+									<span className='text-slate-900 dark:text-white'>
+										{data?.patientsAhead} patients
+									</span>{" "}
+									currently ahead of you.
+								</p>
+							)}
+						</div>
+					)}
 				</div>
 
-				<div className='space-y-6 mb-8'>
-					<div className='flex items-center justify-between p-4 bg-emerald-50 text-emerald-700 rounded-2xl dark:bg-emerald-900/10 dark:text-emerald-400'>
-						<div className='flex items-center gap-2'>
-							<svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+				{/* Metrics Grid - Hierarchical Redesign */}
+				{!isServed && !isDelayed && (
+					<div className='grid grid-cols-2 gap-4 mb-8'>
+						<div className='p-6 bg-blue-600 text-white rounded-[2rem] shadow-xl shadow-blue-500/20'>
+							<p className='text-[10px] uppercase tracking-widest font-black opacity-80 mb-2'>
+								Patients Waiting
+							</p>
+							<p className='text-4xl font-black'>{data?.patientsAhead}</p>
+						</div>
+						<div className='p-6 bg-slate-50 rounded-[2rem] border border-slate-100 dark:bg-slate-800/50 dark:border-slate-700/50'>
+							<p className='text-[10px] uppercase tracking-widest font-black text-slate-400 mb-2'>
+								Now Serving
+							</p>
+							<p className='text-2xl font-black text-slate-900 dark:text-white tabular-nums'>
+								#{data?.currentServing ?? "--"}
+							</p>
+						</div>
+					</div>
+				)}
+
+				{/* Wait Time Display */}
+				{!isServed && !isDelayed && (
+					<div
+						className={`mb-10 p-5 rounded-3xl border transition-all duration-500 ${
+							isCalled
+								? "bg-amber-500 border-amber-600 shadow-lg shadow-amber-500/20"
+								: "bg-emerald-50 content-between items-center border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/20"
+						}`}>
+						<div className='flex items-center justify-center gap-3'>
+							<svg
+								className={`w-5 h-5 ${isCalled ? "text-white" : "text-emerald-500"}`}
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'>
 								<path
-									fillRule='evenodd'
-									d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z'
-									clipRule='evenodd'
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth='2.5'
+									d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
 								/>
 							</svg>
-							<span className='font-bold'>Estimated Wait Time</span>
+							<span
+								className={`text-sm font-black uppercase tracking-wider ${isCalled ? "text-white" : "text-emerald-700 dark:text-emerald-400"}`}>
+								{isCalled
+									? "Serve Time Now"
+									: `Approx. wait: ${data?.estimatedWaitMinutes} mins`}
+							</span>
 						</div>
-						<span className='text-xl font-black'>{data?.estimatedWaitMinutes}m</span>
 					</div>
+				)}
 
-					<div className='flex items-center justify-center gap-2'>
-						<div
-							className={`w-2.5 h-2.5 rounded-full ${data?.status === "CALLED" ? "bg-amber-500 animate-bounce" : "bg-blue-500"}`}></div>
-						<p className='text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest'>
-							{data?.status === "CALLED" ? "PLEASE HEAD TO COUNTER" : data?.status}
-						</p>
+				<p className='text-[10px] text-slate-300 dark:text-slate-600 font-bold uppercase tracking-widest'>
+					Secure Live Status Update
+				</p>
+			</div>
+
+			{/* Mobile Sticky Action Bar */}
+			<div className='fixed bottom-0 left-0 right-0 p-4 md:hidden z-50 pointer-events-none'>
+				<div className='max-w-md mx-auto pointer-events-auto'>
+					<div
+						className={`flex items-center justify-between p-4 rounded-full shadow-2xl backdrop-blur-xl border transition-all duration-500 ${
+							isCalled
+								? "bg-amber-500 border-amber-400"
+								: isServed
+									? "bg-emerald-600 border-emerald-500"
+									: isDelayed
+										? "bg-rose-600 border-rose-500"
+										: "bg-slate-900/95 border-slate-800"
+						}`}>
+						<div className='flex items-center gap-3 ml-2'>
+							<div
+								className={`w-3 h-3 rounded-full ${isCalled ? "bg-white animate-ping" : "bg-blue-500"}`}></div>
+							<div className='text-left'>
+								<p className='text-[9px] font-black text-white/60 uppercase tracking-widest leading-tight'>
+									Live Status
+								</p>
+								<p className='text-xs font-black text-white uppercase tracking-wider leading-tight'>
+									{isCalled
+										? "Called: Head to Counter"
+										: isServed
+											? "Visit Completed"
+											: isDelayed
+												? "Token Passed"
+												: "Waiting in Queue"}
+								</p>
+							</div>
+						</div>
+						{!isServed && !isDelayed && (
+							<div className='mr-2 px-4 py-1.5 bg-white/20 rounded-full'>
+								<p className='text-[9px] font-black text-white/60 uppercase tracking-widest text-center'>
+									Wait
+								</p>
+								<p className='text-sm font-black text-white'>
+									{data?.estimatedWaitMinutes}m
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
-
-				<p className='text-[10px] text-slate-400 dark:text-slate-500 font-medium italic'>
-					This status updates automatically every 30 seconds.
-				</p>
 			</div>
 		</div>
 	);
