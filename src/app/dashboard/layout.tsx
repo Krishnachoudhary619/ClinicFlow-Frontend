@@ -19,5 +19,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 		return null; // prevent flash during initialization
 	}
 
-	return <div className='min-h-screen bg-gray-100'>{children}</div>;
+	return <div className='min-h-screen'>{children}</div>;
 }
