@@ -13,6 +13,7 @@ import { QueueResponse } from "@/types/queue";
 import RoleGuard from "@/components/RoleGuard";
 import { UserRole } from "@/types/user";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import { showSuccess, showError } from "@/lib/toast";
 
 export default function QueuePanel() {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
@@ -38,23 +39,43 @@ export default function QueuePanel() {
 
 	const handleAction = async (action: () => Promise<any>) => {
 		setLoading(true);
-		await action();
-		await loadQueue();
+		const response = await action();
+
+		if (response.success) {
+			showSuccess(response.message);
+			await loadQueue();
+		} else {
+			showError(response.message);
+		}
 		setLoading(false);
 	};
 
 	const handleResetConfirm = async () => {
 		setIsActionLoading(true);
-		await resetTokens();
-		await loadQueue();
+		const response = await resetTokens();
+
+		if (response.success) {
+			showSuccess(response.message);
+			await loadQueue();
+		} else {
+			showError(response.message);
+		}
+
 		setIsActionLoading(false);
 		setIsResetModalOpen(false);
 	};
 
 	const handleNewDayConfirm = async () => {
 		setIsActionLoading(true);
-		await startNewDay();
-		await loadQueue();
+		const response = await startNewDay();
+
+		if (response.success) {
+			showSuccess(response.message);
+			await loadQueue();
+		} else {
+			showError(response.message);
+		}
+
 		setIsActionLoading(false);
 		setIsNewDayModalOpen(false);
 	};
