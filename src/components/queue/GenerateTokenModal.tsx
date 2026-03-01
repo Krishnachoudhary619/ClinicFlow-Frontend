@@ -41,71 +41,60 @@ export default function GenerateTokenModal({ open, loading = false, onClose, onS
 	};
 
 	return (
-		<div className='fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200'>
-			<div className='w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200 dark:bg-slate-900 dark:border-slate-800'>
-				<div className='mb-8'>
-					<h2 className='text-3xl font-black text-slate-900 dark:text-white mb-2'>
-						New Patient Token
-					</h2>
-					<p className='text-slate-500 dark:text-slate-400 font-medium'>
-						Enter patient details to generate a live queue token.
+		<div className='fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200'>
+			<div className='w-full max-w-md bg-slate-900 rounded-xl p-6 border border-slate-800 animate-in zoom-in-95 duration-200'>
+				<div className='mb-6'>
+					<h2 className='text-lg font-semibold text-white mb-1'>New Patient Token</h2>
+					<p className='text-slate-400 text-sm'>
+						Enter details to generate a queue token.
 					</p>
 				</div>
 
-				<form onSubmit={handleSubmit(handleFormSubmit)} className='space-y-6'>
+				<form onSubmit={handleSubmit(handleFormSubmit)} className='space-y-4'>
 					<div>
-						<label className='block text-xs font-black uppercase tracking-widest text-slate-500 mb-2'>
+						<label className='block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5'>
 							Patient Name
 						</label>
 						<input
-							{...register("patientName", { required: "Patient name is required" })}
-							placeholder='e.g. John Doe'
+							{...register("patientName", { required: "Name is required" })}
+							placeholder='Full Name'
 							autoFocus
-							className={`w-full px-4 py-3.5 bg-slate-50 border ${
-								errors.patientName
-									? "border-rose-300 ring-rose-50"
-									: "border-slate-200"
-							} rounded-2xl text-slate-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white`}
+							className={`w-full h-10 px-4 bg-slate-800 border ${
+								errors.patientName ? "border-rose-500" : "border-slate-700"
+							} rounded-lg text-white text-sm focus:border-blue-500 outline-none transition-all`}
 						/>
 						{errors.patientName && (
-							<p className='mt-2 text-xs font-bold text-rose-500 uppercase tracking-wider'>
+							<p className='mt-1 text-[11px] font-bold text-rose-500'>
 								{errors.patientName.message}
 							</p>
 						)}
 					</div>
 
 					<div>
-						<label className='block text-xs font-black uppercase tracking-widest text-slate-500 mb-2'>
+						<label className='block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5'>
 							Phone Number (Optional)
 						</label>
 						<input
 							{...register("patientPhone")}
-							placeholder='e.g. +91 9876543210'
-							className='w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-white'
+							placeholder='+91 00000 00000'
+							className='w-full h-10 px-4 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:border-blue-500 outline-none transition-all'
 						/>
 					</div>
 
-					<div className='flex flex-col sm:flex-row gap-3 pt-4'>
+					<div className='flex gap-3 pt-4'>
 						<button
 							type='button'
 							onClick={onClose}
 							disabled={loading}
-							className='flex-1 px-6 py-4 text-sm font-bold text-slate-600 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-all dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50'>
+							className='flex-1 h-10 text-sm font-semibold text-slate-300 border border-slate-700 rounded-lg hover:bg-slate-800 transition-all disabled:opacity-50'>
 							Cancel
 						</button>
 
 						<button
 							type='submit'
 							disabled={loading}
-							className='flex-[2] px-6 py-4 text-sm font-black text-white bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 active:scale-[0.98] transition-all disabled:opacity-50'>
-							{loading ? (
-								<div className='flex items-center justify-center gap-2'>
-									<div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-									<span>Generating...</span>
-								</div>
-							) : (
-								"Print Token"
-							)}
+							className='flex-[1.5] h-10 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-500 transition-all disabled:opacity-50'>
+							{loading ? "Generating..." : "Generate Token"}
 						</button>
 					</div>
 				</form>

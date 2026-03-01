@@ -9,84 +9,68 @@ interface Props {
 
 export default function WaitingTokensTable({ tokens }: Props) {
 	return (
-		<div className='mt-10'>
+		<div>
 			<div className='flex items-center justify-between mb-6'>
-				<h3 className='text-lg font-bold text-slate-900 dark:text-white'>
-					Upcoming Tokens
+				<h3 className='text-sm font-semibold uppercase tracking-wider text-slate-400'>
+					Upcoming Patients
 				</h3>
-				<span className='px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full dark:bg-slate-800 dark:text-slate-400'>
-					{tokens.length} {tokens.length === 1 ? "Patient" : "Patients"}
+				<span className='px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-black rounded-md border border-slate-700'>
+					{tokens.length} IN QUEUE
 				</span>
 			</div>
 
 			{!tokens.length ? (
-				<div className='flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 rounded-3xl dark:border-slate-800'>
-					<div className='w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4 dark:bg-slate-800'>
-						<svg
-							className='w-6 h-6 text-slate-400'
-							fill='none'
-							stroke='currentColor'
-							viewBox='0 0 24 24'>
-							<path
-								strokeLinecap='round'
-								strokeLinejoin='round'
-								strokeWidth='2'
-								d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-							/>
-						</svg>
-					</div>
-					<p className='text-slate-500 font-medium dark:text-slate-400'>
-						No patients currently in waitlist.
+				<div className='flex flex-col items-center justify-center py-10 text-center'>
+					<p className='text-slate-500 font-medium text-sm'>
+						Queue is empty. New tokens will appear here.
 					</p>
 				</div>
 			) : (
-				<div className='overflow-hidden border border-slate-200 rounded-2xl dark:border-slate-800'>
-					<div className='overflow-x-auto'>
-						<table className='min-w-full divide-y divide-slate-200 dark:divide-slate-800'>
-							<thead className='bg-slate-50 dark:bg-slate-900/50'>
-								<tr>
-									<th className='px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500'>
-										Token
-									</th>
-									<th className='px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500'>
-										Patient Name
-									</th>
-									<th className='px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500'>
-										Phone Number
-									</th>
-									<th className='px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500'>
-										Cycle
-									</th>
-									<th className='px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500'>
-										Status
-									</th>
+				<div className='overflow-x-auto'>
+					<table className='min-w-full'>
+						<thead>
+							<tr className='border-b border-slate-800'>
+								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Token
+								</th>
+								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Patient
+								</th>
+								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Contact
+								</th>
+								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Cycle
+								</th>
+								<th className='px-4 py-3 text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Status
+								</th>
+							</tr>
+						</thead>
+						<tbody className='divide-y divide-slate-800/50'>
+							{tokens.map((token) => (
+								<tr
+									key={token.id}
+									className='transition-colors group hover:bg-slate-800/30'>
+									<td className='px-4 py-4 whitespace-nowrap text-sm font-bold text-blue-400'>
+										#{token.tokenNumber}
+									</td>
+									<td className='px-4 py-4 whitespace-nowrap text-sm font-medium text-slate-200 capitalize'>
+										{token.patientName || "---"}
+									</td>
+									<td className='px-4 py-4 whitespace-nowrap text-sm text-slate-400 tabular-nums'>
+										{token.patientPhone || "---"}
+									</td>
+									<td className='px-4 py-4 whitespace-nowrap text-sm text-slate-500 tabular-nums'>
+										C{token.cycleNumber}
+									</td>
+									<td className='px-4 py-4 whitespace-nowrap text-right'>
+										<StatusBadge status={token.status} />
+									</td>
 								</tr>
-							</thead>
-							<tbody className='bg-white divide-y divide-slate-100 dark:bg-slate-900 dark:divide-slate-800'>
-								{tokens.map((token) => (
-									<tr
-										key={token.id}
-										className='hover:bg-slate-50 transition-colors dark:hover:bg-slate-800/50'>
-										<td className='px-6 py-4 whitespace-nowrap text-sm font-black text-blue-600 dark:text-blue-400'>
-											#{token.tokenNumber}
-										</td>
-										<td className='px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-white capitalize'>
-											{token.patientName || "---"}
-										</td>
-										<td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-500 dark:text-slate-400 tabular-nums'>
-											{token.patientPhone || "---"}
-										</td>
-										<td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600 dark:text-slate-400 tabular-nums'>
-											C{token.cycleNumber}
-										</td>
-										<td className='px-6 py-4 whitespace-nowrap'>
-											<StatusBadge status={token.status} />
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+							))}
+						</tbody>
+					</table>
 				</div>
 			)}
 		</div>

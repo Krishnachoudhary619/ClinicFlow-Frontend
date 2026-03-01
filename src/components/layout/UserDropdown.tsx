@@ -70,6 +70,9 @@ export default function UserDropdown() {
 							<span className='px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 rounded-md dark:bg-blue-900/30 dark:text-blue-400'>
 								{user.role}
 							</span>
+							<span className='px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 rounded-md dark:bg-slate-800 dark:text-slate-400'>
+								ID: {user.clinicId}
+							</span>
 						</div>
 					</div>
 

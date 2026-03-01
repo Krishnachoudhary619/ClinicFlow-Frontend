@@ -1,52 +1,50 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import QueuePanel from "@/components/queue/QueuePanel";
-import { useAuthStore } from "@/store/authStore";
-import { UserRole } from "@/types/user";
+import DashboardKpiStrip from "@/components/dashboard/DashboardKpiStrip";
+import { fetchTodayAnalytics } from "@/lib/services/analyticsService";
+import { fetchCurrentQueue } from "@/lib/services/queueService";
 
 export default function DashboardPage() {
-	const user = useAuthStore((s) => s.user);
+	const [analytics, setAnalytics] = useState<any>(null);
+	const [queueData, setQueueData] = useState<any>(null);
+
+	useEffect(() => {
+		const loadData = async () => {
+			const [analyticsRes, queueRes] = await Promise.all([
+				fetchTodayAnalytics(),
+				fetchCurrentQueue(),
+			]);
+
+			if (analyticsRes.success) setAnalytics(analyticsRes.data);
+			if (queueRes.success) setQueueData(queueRes.data);
+		};
+
+		loadData();
+
+		// Refresh every 30s to keep KPI strip live
+		const interval = setInterval(loadData, 30000);
+		return () => clearInterval(interval);
+	}, []);
 
 	return (
-		<div className='p-8 max-w-7xl mx-auto'>
-			<div className='mb-10'>
-				<h1 className='text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white'>
-					Clinic Dashboard
-				</h1>
-				<p className='mt-2 text-lg text-slate-600 dark:text-slate-400'>
-					Manage your daily clinic operations seamlessly.
-				</p>
+		<div className='max-w-7xl mx-auto space-y-8'>
+			{/* Page Header */}
+			<div>
+				<h1 className='text-3xl font-semibold tracking-tight text-white'>Dashboard</h1>
+				<p className='text-slate-400 mt-1'>Manage your clinic operations efficiently.</p>
 			</div>
 
-			<div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10'>
-				{/* Information Card */}
-				<div className='p-6 bg-white border border-slate-200 rounded-2xl shadow-sm dark:bg-slate-900 dark:border-slate-800'>
-					<h2 className='text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2'>
-						Active Session
-					</h2>
-					<p className='text-xl font-bold text-slate-900 dark:text-slate-100'>
-						{user?.role === UserRole.ADMIN
-							? "Administrator"
-							: user?.role === UserRole.DOCTOR
-								? "Physician"
-								: "Reception Staff"}
-					</p>
-					<p className='mt-1 text-sm text-slate-500 dark:text-slate-400'>{user?.email}</p>
-				</div>
+			{/* KPI Strip */}
+			<DashboardKpiStrip
+				waitingCount={queueData?.waitingCount || 0}
+				todayGenerated={analytics?.totalGenerated || 0}
+				todayServed={analytics?.totalServed || 0}
+				avgWait={analytics?.avgWaitMinutes?.toFixed(1) || 0}
+			/>
 
-				<div className='p-6 bg-white border border-slate-200 rounded-2xl shadow-sm dark:bg-slate-900 dark:border-slate-800'>
-					<h2 className='text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2'>
-						Clinic ID
-					</h2>
-					<p className='text-xl font-bold text-slate-900 dark:text-slate-100'>
-						#{user?.clinicId || "---"}
-					</p>
-					<p className='mt-1 text-sm text-slate-500 dark:text-slate-400'>
-						Authorized Facility
-					</p>
-				</div>
-			</div>
-
+			{/* Main Queue Control */}
 			<QueuePanel />
 		</div>
 	);
