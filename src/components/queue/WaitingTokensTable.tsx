@@ -39,8 +39,12 @@ export default function WaitingTokensTable({ tokens }: Props) {
 								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
 									Contact
 								</th>
+
 								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
-									Cycle
+									Code
+								</th>
+								<th className='px-4 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
+									Source
 								</th>
 								<th className='px-4 py-3 text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider'>
 									Status
@@ -61,8 +65,31 @@ export default function WaitingTokensTable({ tokens }: Props) {
 									<td className='px-4 py-4 whitespace-nowrap text-sm text-slate-400 tabular-nums'>
 										{token.patientPhone || "---"}
 									</td>
-									<td className='px-4 py-4 whitespace-nowrap text-sm text-slate-500 tabular-nums'>
-										C{token.cycleNumber}
+									<td className='px-4 py-4 whitespace-nowrap text-sm text-slate-400'>
+										<div className='flex items-center gap-2'>
+											<span className='text-xs font-mono text-slate-500'>
+												{token.publicTokenCode}
+											</span>
+											<button
+												onClick={() =>
+													navigator.clipboard.writeText(
+														token.publicTokenCode,
+													)
+												}
+												className='p-1 hover:bg-slate-700 rounded transition-colors text-[10px]'
+												title='Copy Token Code'>
+												📋
+											</button>
+										</div>
+									</td>
+									<td className='px-4 py-4 whitespace-nowrap'>
+										{token.source === "SELF_SERVICE" ? (
+											<span className='inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'>
+												🌐 Online
+											</span>
+										) : (
+											<span className='text-[10px] text-slate-500'>Desk</span>
+										)}
 									</td>
 									<td className='px-4 py-4 whitespace-nowrap text-right'>
 										<StatusBadge status={token.status} />

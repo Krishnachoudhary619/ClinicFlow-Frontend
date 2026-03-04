@@ -15,8 +15,9 @@ export const ENDPOINTS = {
     },
 
     PUBLIC: {
-        TOKEN: (tokenId: number | string) =>
-            `/public/token/${tokenId}`,
+        CLINIC: (slug: string) => `/public/clinics/${slug}`,
+        GENERATE_TOKEN: "/public/tokens",
+        TRACK_TOKEN: (code: string) => `/public/tokens/${code}`,
     },
 
     ANALYTICS: {

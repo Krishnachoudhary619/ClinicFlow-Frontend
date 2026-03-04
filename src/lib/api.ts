@@ -4,7 +4,7 @@ import { refreshService } from "@/lib/services/refreshService";
 import { useAuthStore } from "@/store/authStore";
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL,
     headers: {
         "Content-Type": "application/json",
     },
@@ -12,9 +12,12 @@ const api = axios.create({
 
 // Attach access token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    // Only attach token for non-public routes
+    if (!config.url?.includes("/public/")) {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
     }
     return config;
 });
@@ -24,6 +27,11 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
+
+        // Skip refresh/redirect logic for public endpoints
+        if (originalRequest.url?.includes("/public/")) {
+            return Promise.reject(error);
+        }
 
         if (
             error.response?.status === 401 &&
