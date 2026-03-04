@@ -32,12 +32,16 @@ export default function PublicClinicPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!clinic) return;
+		if (!clinic || !clinic.isQueueOpen) return;
+
+		const trimmedName = formData.patientName.trim();
+		if (trimmedName.length < 2) return;
 
 		setSubmitting(true);
 		const res = await generatePublicToken({
 			clinicId: clinic.clinicId,
-			...formData,
+			patientName: trimmedName,
+			patientPhone: formData.patientPhone.trim() || undefined,
 		});
 
 		if (res.success && res.data) {
@@ -111,7 +115,7 @@ export default function PublicClinicPage() {
 				</div>
 
 				{/* Status Notice */}
-				{!clinic.isQueueOpen && (
+				{clinic.isQueueOpen === false && (
 					<div className='bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl p-4 mb-8 text-center animate-pulse'>
 						<p className='text-rose-600 dark:text-rose-400 text-sm font-black uppercase tracking-wider'>
 							The queue is currently closed
@@ -121,7 +125,7 @@ export default function PublicClinicPage() {
 
 				{/* Join Queue Form Card */}
 				<div
-					className={`bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden transition-all duration-500 ${!clinic.isQueueOpen ? "opacity-50 grayscale pointer-events-none" : ""}`}>
+					className={`bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden transition-all duration-500 ${clinic.isQueueOpen === false ? "opacity-50 grayscale pointer-events-none" : ""}`}>
 					<div className='relative z-10'>
 						<h3 className='text-xl font-black text-slate-900 dark:text-white mb-8 tracking-tight'>
 							Join Queue
@@ -134,6 +138,8 @@ export default function PublicClinicPage() {
 								<input
 									required
 									type='text'
+									minLength={2}
+									maxLength={50}
 									placeholder='Enter name...'
 									className='w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-4 text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700 font-bold'
 									value={formData.patientName}
@@ -141,6 +147,11 @@ export default function PublicClinicPage() {
 										setFormData({ ...formData, patientName: e.target.value })
 									}
 								/>
+								{formData.patientName && formData.patientName.trim().length < 2 && (
+									<p className='text-[10px] text-rose-500 font-bold ml-1 uppercase tracking-wider'>
+										Name is too short
+									</p>
+								)}
 							</div>
 							<div className='space-y-2'>
 								<label className='text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1'>
@@ -157,10 +168,18 @@ export default function PublicClinicPage() {
 								/>
 							</div>
 							<button
-								disabled={submitting || !clinic.isQueueOpen}
+								disabled={
+									submitting ||
+									clinic.isQueueOpen === false ||
+									formData.patientName.trim().length < 2
+								}
 								type='submit'
 								className='w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black py-5 rounded-2xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100 mt-4 text-sm uppercase tracking-[0.2em]'>
-								{submitting ? "Processing..." : "Get Token"}
+								{submitting
+									? "Processing..."
+									: clinic.isQueueOpen === false
+										? "Queue Closed"
+										: "Get Token"}
 							</button>
 						</form>
 					</div>
