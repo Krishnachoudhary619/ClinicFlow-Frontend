@@ -10,17 +10,17 @@ export default function DashboardPage() {
 	const [analytics, setAnalytics] = useState<any>(null);
 	const [queueData, setQueueData] = useState<any>(null);
 
+	const loadData = async () => {
+		const [analyticsRes, queueRes] = await Promise.all([
+			fetchTodayAnalytics(),
+			fetchCurrentQueue(),
+		]);
+
+		if (analyticsRes.success) setAnalytics(analyticsRes.data);
+		if (queueRes.success) setQueueData(queueRes.data);
+	};
+
 	useEffect(() => {
-		const loadData = async () => {
-			const [analyticsRes, queueRes] = await Promise.all([
-				fetchTodayAnalytics(),
-				fetchCurrentQueue(),
-			]);
-
-			if (analyticsRes.success) setAnalytics(analyticsRes.data);
-			if (queueRes.success) setQueueData(queueRes.data);
-		};
-
 		loadData();
 
 		// Refresh every 30s to keep KPI strip live
@@ -45,7 +45,7 @@ export default function DashboardPage() {
 			/>
 
 			{/* Main Queue Control */}
-			<QueuePanel />
+			<QueuePanel onActionComplete={loadData} />
 		</div>
 	);
 }

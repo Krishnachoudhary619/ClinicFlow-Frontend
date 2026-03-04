@@ -18,7 +18,11 @@ import WaitingTokensTable from "./WaitingTokensTable";
 import GenerateTokenModal from "./GenerateTokenModal";
 import { useActionStore } from "@/store/actionStore";
 
-export default function QueuePanel() {
+interface Props {
+	onActionComplete?: () => void;
+}
+
+export default function QueuePanel({ onActionComplete }: Props) {
 	const [queue, setQueue] = useState<QueueResponse | null>(null);
 	const [loading, setLoading] = useState(false);
 
@@ -56,6 +60,7 @@ export default function QueuePanel() {
 		if (response.success) {
 			showSuccess(response.message);
 			await loadQueue();
+			onActionComplete?.();
 		} else {
 			showError(response.message);
 			await loadQueue();
@@ -76,6 +81,7 @@ export default function QueuePanel() {
 			showSuccess(response.message);
 			await loadQueue();
 			setIsGenerateModalOpen(false);
+			onActionComplete?.();
 		} else {
 			showError(response.message);
 			await loadQueue();
@@ -96,6 +102,7 @@ export default function QueuePanel() {
 			showSuccess(response.message);
 			await loadQueue();
 			setIsSkipModalOpen(false);
+			onActionComplete?.();
 		} else {
 			showError(response.message);
 			await loadQueue();
@@ -115,6 +122,7 @@ export default function QueuePanel() {
 		if (response.success) {
 			showSuccess(response.message);
 			await loadQueue();
+			onActionComplete?.();
 		} else {
 			showError(response.message);
 			await loadQueue();
@@ -135,6 +143,7 @@ export default function QueuePanel() {
 		if (response.success) {
 			showSuccess(response.message);
 			await loadQueue();
+			onActionComplete?.();
 		} else {
 			showError(response.message);
 			await loadQueue();
